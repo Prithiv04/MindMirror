@@ -1,0 +1,20 @@
+{
+  "name": "mindmirror",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@qvac/sdk": "^0.12.2",
+    "bare-runtime-win32-x64": "file:bare-runtime-win32-x64-1.28.6.tgz",
+    "express": "^5.2.1"
+  }
+}

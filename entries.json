@@ -1,0 +1,197 @@
+[
+  {
+    "id": "1780673685687",
+    "timestamp": "2026-06-05T15:34:45.688Z",
+    "content": "Today was quite stressful at work because of a deadline, but I managed to get it done. I slept about 7 hours last night and felt decent.",
+    "analysis": {
+      "mood": "Stressed",
+      "moodScore": 4,
+      "stressLevel": 3,
+      "sleepQuality": 7,
+      "keywords": [
+        "work",
+        "deadline",
+        "stress"
+      ],
+      "summary": "Managing work-related stress despite a deadline, and getting a decent night's sleep."
+    }
+  },
+  {
+    "id": "1780731431030",
+    "timestamp": "2026-06-06T07:37:11.031Z",
+    "content": "im in a good mood",
+    "analysis": {
+      "mood": "good",
+      "moodScore": 6,
+      "stressLevel": 0,
+      "sleepQuality": null,
+      "keywords": [
+        "good",
+        "mood"
+      ],
+      "summary": "The user is feeling optimistic."
+    }
+  },
+  {
+    "id": "1780731520196",
+    "timestamp": "2026-06-06T07:38:40.197Z",
+    "content": "i feeling very great today as i am in a family trip",
+    "analysis": {
+      "mood": "Calm",
+      "moodScore": 10,
+      "stressLevel": 0,
+      "sleepQuality": null,
+      "keywords": [
+        "family",
+        "trip"
+      ],
+      "summary": "feeling relaxed and content"
+    }
+  },
+  {
+    "id": "1780731749388",
+    "timestamp": "2026-06-06T07:42:29.389Z",
+    "content": "im gonna propose my crush",
+    "analysis": {
+      "mood": "Anxious",
+      "moodScore": 6,
+      "stressLevel": 8,
+      "sleepQuality": null,
+      "keywords": [
+        "proposal",
+        "crush"
+      ],
+      "summary": "The user is feeling anxious about proposing to their crush, and is unsure if this is the right time."
+    }
+  },
+  {
+    "id": "1780731819143",
+    "timestamp": "2026-06-06T07:43:39.145Z",
+    "content": "im gonna propose to my crush",
+    "analysis": {
+      "mood": "Calm",
+      "moodScore": 0,
+      "stressLevel": 0,
+      "sleepQuality": 1,
+      "keywords": [
+        "crush",
+        "proposal"
+      ],
+      "summary": "Thinking about asking my crush to be my girlfriend"
+    }
+  },
+  {
+    "id": "1780834519030",
+    "timestamp": "2026-06-07T12:15:19.031Z",
+    "content": "im gonna propose my crush",
+    "analysis": {
+      "mood": "Anxious",
+      "moodScore": 6,
+      "stressLevel": 3,
+      "sleepQuality": 5,
+      "keywords": [
+        "crush",
+        "proposal"
+      ],
+      "summary": "Anxious anticipation for a potential crush's proposal."
+    }
+  },
+  {
+    "id": "1780834685972",
+    "timestamp": "2026-06-07T12:18:05.972Z",
+    "content": "im gonna propose my crush",
+    "analysis": {
+      "mood": "Calm",
+      "moodScore": 5,
+      "stressLevel": 2,
+      "sleepQuality": null,
+      "keywords": [
+        " Crush",
+        " proposal"
+      ],
+      "summary": "I'm feeling hopeful and optimistic about the potential outcome."
+    }
+  },
+  {
+    "id": "1780834960396",
+    "timestamp": "2026-06-07T12:22:40.398Z",
+    "content": "i am worried about toomorrow exam",
+    "analysis": {
+      "mood": "Anxious",
+      "moodScore": 6,
+      "stressLevel": 8,
+      "sleepQuality": null,
+      "keywords": [
+        "exam",
+        "worried"
+      ],
+      "summary": "I'm feeling anxious about my upcoming exam tomorrow, I'm worried about what the questions will be and whether I'll be able to answer them correctly."
+    }
+  },
+  {
+    "id": "1780838254300",
+    "timestamp": "2026-06-07T13:17:34.301Z",
+    "content": "im gonna propose my crush",
+    "analysis": {
+      "moodScore": 2,
+      "mood": "string",
+      "stressLevel": 0,
+      "sleepQuality": null,
+      "keywords": [
+        "im",
+        "gonna",
+        "propose",
+        "my",
+        "crush"
+      ],
+      "summary": "I'm planning to make a big move and ask my crush out"
+    }
+  },
+  {
+    "id": "1780993956572",
+    "timestamp": "2026-06-09T08:32:36.573Z",
+    "content": "im stressed abiut tomorrow exam",
+    "analysis": {
+      "mood": "stressed",
+      "moodScore": 10,
+      "stressLevel": 7,
+      "sleepQuality": 6,
+      "keywords": [
+        "stress",
+        "exam",
+        " tomorrow"
+      ]
+    }
+  },
+  {
+    "id": "1781019141697",
+    "timestamp": "2026-06-09T15:32:21.699Z",
+    "content": "im feeling great today",
+    "analysis": {
+      "mood": "great",
+      "moodScore": 10,
+      "stressLevel": 0,
+      "sleepQuality": null,
+      "keywords": [
+        "great",
+        "good"
+      ],
+      "summary": "I'm feeling great today"
+    }
+  },
+  {
+    "id": "1781274086780",
+    "timestamp": "2026-06-12T14:21:26.784Z",
+    "content": "im feeling good today i worked out so hard",
+    "analysis": {
+      "mood": "good",
+      "moodScore": 1,
+      "stressLevel": 0,
+      "sleepQuality": null,
+      "keywords": [
+        "worked out",
+        "hard"
+      ]
+    }
+  }
+]

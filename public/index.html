@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MindMirror — Private On-Device Journal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --bg: #0A0A0F;
+      --surface: rgba(255, 255, 255, 0.04);
+      --surface-high: rgba(255, 255, 255, 0.08);
+      --primary: #8B5CF6;
+      --primary-light: #A78BFA;
+      --secondary: #6366F1;
+      --text: #e7e0ed;
+      --text-dim: rgba(231, 224, 237, 0.6);
+      --border: rgba(255, 255, 255, 0.12);
+      --radius: 12px;
+      --font: 'Inter', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ==== SIDEBAR ==== */
+    .sidebar {
+      width: 220px;
+      min-height: 100vh;
+      background: var(--surface-high);
+      backdrop-filter: blur(30px);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 16px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 36px;
+      padding: 0 8px;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--primary);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--primary);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    .brand h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      margin-bottom: 4px;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .nav-link.active {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--primary-light);
+    }
+
+    .status-badge {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--surface);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+    }
+
+    .status-dot.online {
+      background: #22c55e;
+      box-shadow: 0 0 6px #22c55e;
+    }
+
+    .status-dot.loading {
+      background: #f59e0b;
+      animation: pulse 1s infinite;
+    }
+
+    /* ==== MAIN CONTENT ==== */
+    .main {
+      margin-left: 220px;
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    /* ==== SECTIONS ==== */
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    /* ==== GLASS CARD ==== */
+    .card {
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.06);
+      transition: box-shadow 0.2s;
+    }
+
+    .card:hover {
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.1);
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    .card h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-dim);
+    }
+
+    /* ==== KPI ROW ==== */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.06);
+    }
+
+    .kpi-icon {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    .kpi-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+
+    .kpi-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary-light);
+    }
+
+    /* ==== JOURNAL ==== */
+    .page-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+
+    textarea#journal-content {
+      width: 100%;
+      height: 130px;
+      resize: vertical;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.95rem;
+      padding: 12px;
+      outline: none;
+      line-height: 1.6;
+    }
+
+    textarea#journal-content:focus {
+      border-color: var(--primary);
+    }
+
+    textarea#journal-content::placeholder {
+      color: var(--text-dim);
+    }
+
+    .char-counter {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 6px;
+      text-align: right;
+    }
+
+    .btn-primary {
+      margin-top: 14px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-light);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ==== TIMELINE ==== */
+    .timeline-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .timeline-date {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .badge-mood {
+      background: rgba(139, 92, 246, 0.2);
+      color: var(--primary-light);
+    }
+
+    .badge-stress {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+    }
+
+    .badge-sleep {
+      background: rgba(34, 197, 94, 0.2);
+      color: #86efac;
+    }
+
+    .timeline-text {
+      font-size: 0.9rem;
+      color: var(--text);
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+
+    .timeline-summary {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      color: var(--primary-light);
+      background: rgba(139, 92, 246, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* ==== ANALYTICS ==== */
+    .chart-wrapper {
+      position: relative;
+      height: 280px;
+    }
+
+    /* ==== REFLECTIONS ==== */
+    .ai-border {
+      border: 2px solid transparent;
+      background-clip: padding-box, border-box;
+      background-origin: padding-box, border-box;
+      background-image: linear-gradient(var(--bg), var(--bg)), linear-gradient(135deg, var(--secondary), var(--primary));
+    }
+
+    .reflection-content {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .reflection-content h1,
+    .reflection-content h2,
+    .reflection-content h3 {
+      color: var(--primary-light);
+      margin: 16px 0 8px;
+    }
+
+    .reflection-content ul,
+    .reflection-content ol {
+      margin-left: 20px;
+      margin-bottom: 10px;
+    }
+
+    .reflection-content p {
+      margin-bottom: 10px;
+    }
+
+    .regenerate-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-family: var(--font);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .regenerate-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary-light);
+    }
+
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    /* ==== CHATBOT ==== */
+    .chat-messages {
+      min-height: 200px;
+      max-height: 350px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-right: 4px;
+    }
+
+    .bubble {
+      padding: 10px 14px;
+      border-radius: 10px;
+      max-width: 80%;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .bubble.user {
+      background: var(--primary);
+      color: #fff;
+      align-self: flex-end;
+    }
+
+    .bubble.bot {
+      background: var(--surface-high);
+      color: var(--text);
+      align-self: flex-start;
+      border: 1px solid var(--border);
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chat-input-row input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      padding: 10px 14px;
+      outline: none;
+    }
+
+    .chat-input-row input:focus {
+      border-color: var(--primary);
+    }
+
+    .chat-input-row input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .btn-send {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-family: var(--font);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-send:hover {
+      background: var(--primary-light);
+    }
+
+    /* ==== LOADING ==== */
+    .loading-text {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface) 25%, var(--surface-high) 50%, var(--surface) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      height: 14px;
+      margin-bottom: 10px;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <h1>MindMirror</h1>
+    </div>
+    <button class="nav-link active" data-target="journal">📝 Journal</button>
+    <button class="nav-link" data-target="analytics">📊 Analytics</button>
+    <button class="nav-link" data-target="reflections">💡 Reflections</button>
+    <button class="nav-link" data-target="chatbot">🤖 Chatbot</button>
+    <div class="status-badge">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-label">Checking AI...</span>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- JOURNAL SECTION -->
+    <section id="journal" class="section active">
+      <h1 class="page-title">Today's Reflection</h1>
+
+      <!-- KPI Cards -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-icon">😊</div>
+          <div class="kpi-label">Avg Mood</div>
+          <div class="kpi-value" id="kpi-mood">--</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">⚡</div>
+          <div class="kpi-label">Avg Stress</div>
+          <div class="kpi-value" id="kpi-stress">--</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">🌙</div>
+          <div class="kpi-label">Avg Sleep</div>
+          <div class="kpi-value" id="kpi-sleep">--</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">📓</div>
+          <div class="kpi-label">Total Logs</div>
+          <div class="kpi-value" id="kpi-count">0</div>
+        </div>
+      </div>
+
+      <!-- Journal Entry -->
+      <div class="card">
+        <h2>New Entry</h2>
+        <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:12px;">Write freely. Your entries are
+          processed locally and never leave this device.</p>
+        <textarea id="journal-content"
+          placeholder="How are you feeling today? Mention your mood, sleep, stress, or anything on your mind..."></textarea>
+        <div class="char-counter"><span id="char-count">0</span> characters</div>
+        <button class="btn-primary" id="journal-save">
+          ✨ Analyze & Save Entry
+        </button>
+      </div>
+
+      <!-- Timeline -->
+      <div class="card">
+        <h2>Journal Timeline</h2>
+        <div id="timeline-container">
+          <div class="empty-state">Write your first entry to begin tracking your emotional journey.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALYTICS SECTION -->
+    <section id="analytics" class="section">
+      <h1 class="page-title">Analytics</h1>
+      <div class="card">
+        <h2>Mood Trend</h2>
+        <div class="chart-wrapper"><canvas id="mood-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <h2>Stress Trend</h2>
+        <div class="chart-wrapper"><canvas id="stress-chart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- REFLECTIONS SECTION -->
+    <section id="reflections" class="section">
+      <h1 class="page-title">AI Weekly Reflection</h1>
+      <div class="card ai-border">
+        <div class="card-header-row">
+          <h2 style="margin-bottom:0">Your Pattern Analysis</h2>
+          <button class="regenerate-btn" id="regenerate-btn">↻ Regenerate</button>
+        </div>
+        <div id="reflection-content" class="reflection-content">
+          <div class="skeleton"></div>
+          <div class="skeleton" style="width:80%"></div>
+          <div class="skeleton" style="width:90%"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHATBOT SECTION -->
+    <section id="chatbot" class="section">
+      <h1 class="page-title">Ask MindMirror</h1>
+      <div class="card">
+        <h2>Query Your Journal</h2>
+        <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:16px;">Ask anything about your journal
+          history. Uses semantic RAG search — all private, all local.</p>
+        <div class="chat-messages" id="chat-messages">
+          <div class="bubble bot">👋 Hi! I've analyzed your journal entries. Ask me anything about your patterns, mood
+            trends, or what's been on your mind.</div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="e.g. Why have I been stressed lately?" />
+          <button class="btn-send" id="chat-send">Send</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ── State
+    let entries = [];
+    let moodChartInst = null;
+    let stressChartInst = null;
+
+    // ── API
+    const api = {
+      getEntries: () => fetch('/api/entries').then(r => r.json()),
+      postEntry: (c) => fetch('/api/entries', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: c }) }).then(r => r.json()),
+      getInsights: () => fetch('/api/insights', { signal: AbortSignal.timeout(300000) }).then(r => r.json()),
+      postChat: (q) => fetch('/api/insights/query', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: q }), signal: AbortSignal.timeout(300000) }).then(r => r.json()),
+      getStatus: () => fetch('/api/status').then(r => r.json()),
+    };
+
+    // ── Navigation
+    document.querySelectorAll('.nav-link').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        const target = btn.dataset.target;
+        document.getElementById(target).classList.add('active');
+        if (target === 'analytics') loadAnalytics();
+        if (target === 'reflections') loadReflection();
+      });
+    });
+
+    // ── Status
+    async function checkStatus() {
+      try {
+        const s = await api.getStatus();
+        const dot = document.getElementById('status-dot');
+        const label = document.getElementById('status-label');
+        if (s.llmLoaded && s.embedLoaded) {
+          dot.className = 'status-dot online';
+          label.textContent = 'Local AI Connected';
+        } else if (s.loading) {
+          dot.className = 'status-dot loading';
+          label.textContent = 'AI Loading...';
+        } else {
+          dot.className = 'status-dot';
+          label.textContent = 'AI Offline';
+        }
+      } catch (e) {
+        document.getElementById('status-dot').className = 'status-dot';
+        document.getElementById('status-label').textContent = 'Offline';
+      }
+    }
+
+    // ── Entries
+    async function loadEntries() {
+      try {
+        entries = await api.getEntries();
+        updateKPIs();
+        renderTimeline();
+      } catch (e) { console.error('Failed to load entries', e); }
+    }
+
+    function updateKPIs() {
+      document.getElementById('kpi-count').textContent = entries.length;
+      if (entries.length === 0) return;
+      const avgMood = entries.reduce((s, e) => s + e.analysis.moodScore, 0) / entries.length;
+      const avgStress = entries.reduce((s, e) => s + e.analysis.stressLevel, 0) / entries.length;
+      const sleepEntries = entries.filter(e => e.analysis.sleepQuality !== null);
+      const avgSleep = sleepEntries.length ? sleepEntries.reduce((s, e) => s + e.analysis.sleepQuality, 0) / sleepEntries.length : null;
+      document.getElementById('kpi-mood').textContent = avgMood.toFixed(1) + '/10';
+      document.getElementById('kpi-stress').textContent = avgStress.toFixed(1) + '/10';
+      document.getElementById('kpi-sleep').textContent = avgSleep !== null ? avgSleep.toFixed(1) + '/10' : 'N/A';
+    }
+
+    function renderTimeline() {
+      const container = document.getElementById('timeline-container');
+      if (entries.length === 0) {
+        container.innerHTML = '<div class="empty-state">Write your first entry to begin tracking your emotional journey.</div>';
+        return;
+      }
+      container.innerHTML = entries.map(entry => {
+        const date = new Date(parseInt(entry.timestamp));
+        const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const tags = (entry.analysis.keywords || []).map(k => `<span class="tag">#${k.trim()}</span>`).join('');
+        return `
+          <div class="timeline-item">
+            <div class="timeline-header">
+              <span class="timeline-date">${dateStr}</span>
+              <div class="badge-row">
+                <span class="badge badge-mood">Mood: ${entry.analysis.moodScore}</span>
+                <span class="badge badge-stress">Stress: ${entry.analysis.stressLevel}</span>
+                ${entry.analysis.sleepQuality !== null ? `<span class="badge badge-sleep">Sleep: ${entry.analysis.sleepQuality}</span>` : ''}
+              </div>
+            </div>
+            <p class="timeline-text">"${entry.content}"</p>
+            <p class="timeline-summary">${entry.analysis.summary || ''}</p>
+            <div class="tag-list">${tags}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ── Save Entry
+    document.getElementById('journal-content').addEventListener('input', function () {
+      document.getElementById('char-count').textContent = this.value.length;
+    });
+
+    document.getElementById('journal-save').addEventListener('click', async () => {
+      const content = document.getElementById('journal-content').value.trim();
+      if (!content) return alert('Please write something first!');
+      const btn = document.getElementById('journal-save');
+      btn.disabled = true;
+      btn.textContent = '⏳ Analyzing...';
+      try {
+        await api.postEntry(content);
+        document.getElementById('journal-content').value = '';
+        document.getElementById('char-count').textContent = '0';
+        await loadEntries();
+      } catch (e) {
+        alert('Error saving entry. Make sure the server is running.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✨ Analyze & Save Entry';
+      }
+    });
+
+    // ── Analytics
+    async function loadAnalytics() {
+      if (entries.length === 0) await loadEntries();
+      const sorted = [...entries].reverse().slice(-10);
+      const labels = sorted.map(e => new Date(parseInt(e.timestamp)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+      const moods = sorted.map(e => e.analysis.moodScore);
+      const stresses = sorted.map(e => e.analysis.stressLevel);
+
+      const chartOpts = (color) => ({
+        type: 'line',
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: 'rgba(255,255,255,0.6)', font: { family: 'Inter' } } } },
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.5)' } },
+            y: { min: 0, max: 10, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.5)' } }
+          }
+        }
+      });
+
+      if (moodChartInst) moodChartInst.destroy();
+      moodChartInst = new Chart(document.getElementById('mood-chart'), {
+        ...chartOpts('#8B5CF6'),
+        data: { labels, datasets: [{ label: 'Mood Score', data: moods, borderColor: '#8B5CF6', backgroundColor: 'rgba(139,92,246,0.1)', borderWidth: 3, tension: 0.3, pointBackgroundColor: '#8B5CF6', pointRadius: 5 }] }
+      });
+
+      if (stressChartInst) stressChartInst.destroy();
+      stressChartInst = new Chart(document.getElementById('stress-chart'), {
+        ...chartOpts('#6366F1'),
+        data: { labels, datasets: [{ label: 'Stress Level', data: stresses, borderColor: '#6366F1', backgroundColor: 'rgba(99,102,241,0.1)', borderWidth: 3, tension: 0.3, pointBackgroundColor: '#6366F1', pointRadius: 5 }] }
+      });
+    }
+
+    // ── Reflections
+    async function loadReflection() {
+      const container = document.getElementById('reflection-content');
+      container.innerHTML = '<div class="skeleton"></div><div class="skeleton" style="width:80%"></div><div class="skeleton" style="width:90%"></div><p class="loading-text" style="margin-top:12px">MedGemma is analyzing your journal patterns... (may take 1-2 mins)</p>';
+      try {
+        const data = await api.getInsights();
+        container.innerHTML = marked.parse(data.insights || 'No insights available yet. Write more journal entries!');
+      } catch (e) {
+        container.innerHTML = '<p style="color:#fca5a5">Failed to load reflection. Check that the server is running and try again.</p>';
+      }
+    }
+
+    document.getElementById('regenerate-btn').addEventListener('click', loadReflection);
+
+    // ── Chatbot
+    document.getElementById('chat-send').addEventListener('click', sendChat);
+    document.getElementById('chat-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+
+    async function sendChat() {
+      const input = document.getElementById('chat-input');
+      const query = input.value.trim();
+      if (!query) return;
+      input.value = '';
+      addBubble(query, 'user');
+      const thinking = addBubble('🤔 Searching your journal...', 'bot');
+      try {
+        const data = await api.postChat(query);
+        thinking.textContent = data.answer || 'No response found.';
+      } catch (e) {
+        thinking.textContent = '❌ Error querying journal. Try again.';
+      }
+    }
+
+    function addBubble(text, type) {
+      const messages = document.getElementById('chat-messages');
+      const bubble = document.createElement('div');
+      bubble.className = `bubble ${type}`;
+      bubble.textContent = text;
+      messages.appendChild(bubble);
+      messages.scrollTop = messages.scrollHeight;
+      return bubble;
+    }
+
+    // ── Init
+    async function init() {
+      await checkStatus();
+      await loadEntries();
+      setInterval(checkStatus, 15000);
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
