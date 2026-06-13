@@ -715,7 +715,10 @@
         renderTimeline();
       } catch (e) { console.error('Failed to load entries', e); }
     }
-
+function parseDate(ts) {
+  if (typeof ts === 'string' && ts.includes('T')) return new Date(ts);
+  return new Date(parseInt(ts));
+}
     function updateKPIs() {
       document.getElementById('kpi-count').textContent = entries.length;
       if (entries.length === 0) return;
@@ -735,7 +738,7 @@
         return;
       }
       container.innerHTML = entries.map(entry => {
-        const date = new Date(parseInt(entry.timestamp));
+        const date = parseDate(entry.timestamp);
         const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         const tags = (entry.analysis.keywords || []).map(k => `<span class="tag">#${k.trim()}</span>`).join('');
         return `
@@ -841,7 +844,7 @@
       const thinking = addBubble('🤔 Searching your journal...', 'bot');
       try {
         const data = await api.postChat(query);
-        thinking.textContent = data.answer || 'No response found.';
+        thinking.textContent = data.answer || data.insights || data.response || data.result || 'No response found.';
       } catch (e) {
         thinking.textContent = '❌ Error querying journal. Try again.';
       }
