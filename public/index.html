@@ -534,7 +534,39 @@
       color: var(--text-dim);
       font-size: 0.9rem;
     }
-  </style>
+  /* Mobile bottom navigation */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface-high);
+  border-top: 1px solid var(--border);
+  padding: 6px 0;
+  justify-content: space-around;
+  z-index: 1000;
+}
+.bottom-nav .nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 0;
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .sidebar {
+    display: none;
+  }
+  .main {
+    margin-left: 0;
+    padding-bottom: 60px; /* space for bottom nav */
+  }
+  .bottom-nav {
+    display: flex;
+  }
+}
+</style>
 </head>
 
 <body>
@@ -554,6 +586,13 @@
       <span id="status-label">Checking AI...</span>
     </div>
   </nav>
+
+<nav class="bottom-nav">
+  <button class="nav-link active" data-target="journal">📝</button>
+  <button class="nav-link" data-target="analytics">📊</button>
+  <button class="nav-link" data-target="reflections">💡</button>
+  <button class="nav-link" data-target="chatbot">🤖</button>
+</nav>
 
   <!-- MAIN -->
   <main class="main">
@@ -787,7 +826,7 @@ function parseDate(ts) {
     async function loadAnalytics() {
       if (entries.length === 0) await loadEntries();
       const sorted = [...entries].reverse().slice(-10);
-      const labels = sorted.map(e => new Date(parseInt(e.timestamp)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+      const labels = sorted.map(e => parseDate(e.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
       const moods = sorted.map(e => e.analysis.moodScore);
       const stresses = sorted.map(e => e.analysis.stressLevel);
 
@@ -820,7 +859,7 @@ function parseDate(ts) {
     // ── Reflections
     async function loadReflection() {
       const container = document.getElementById('reflection-content');
-      container.innerHTML = '<div class="skeleton"></div><div class="skeleton" style="width:80%"></div><div class="skeleton" style="width:90%"></div><p class="loading-text" style="margin-top:12px">MedGemma is analyzing your journal patterns... (may take 1-2 mins)</p>';
+      container.innerHTML = '<div class="skeleton"></div><div class="skeleton" style="width:80%"></div><div class="skeleton" style="width:90%"></div><p class="loading-text" style="margin-top:12px">AI is analyzing your journal... please wait 1-2 minutes</p>';
       try {
         const data = await api.getInsights();
         container.innerHTML = marked.parse(data.insights || 'No insights available yet. Write more journal entries!');
