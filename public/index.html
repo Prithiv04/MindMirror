@@ -30,12 +30,16 @@
     }
 
     body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-    }
+    font-family: var(--font);
+    background:
+      radial-gradient(circle at 10% 0%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 90% 100%, rgba(79, 156, 249, 0.06) 0%, transparent 50%),
+      #0d1117;
+    background-attachment: fixed;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+  }
 
     /* ==== SIDEBAR ==== */
     .sidebar {
@@ -195,45 +199,60 @@
 
     /* ==== KPI ROW ==== */
     .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 20px;
-    }
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+      }
 
     .kpi-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 0 20px rgba(139, 92, 246, 0.06);
-    }
+  background: #0f1729;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease;
+}
 
-    .kpi-icon {
-      font-size: 1.5rem;
-      margin-bottom: 8px;
-    }
+.kpi-card:hover {
+  transform: translateY(-2px);
+}
 
-    .kpi-label {
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      margin-bottom: 4px;
-    }
+.kpi-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: #9ca3af;
+  margin-bottom: 0.8rem;
+  text-transform: uppercase;
+}
 
-    .kpi-value {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--primary-light);
-    }
+.kpi-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.kpi-desc {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 0.6rem;
+}
 
     /* ==== JOURNAL ==== */
     .page-title {
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin-bottom: 24px;
-      color: var(--text);
-    }
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: var(--text);
+}
+.section-subtitle {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
 
     textarea#journal-content {
       width: 100%;
@@ -326,6 +345,17 @@
     }
 
     .badge-mood {
+  background: #4f9cf9;
+  color: #fff;
+}
+.badge-stress {
+  background: #f97316;
+  color: #fff;
+}
+.badge-sleep {
+  background: #22c55e;
+  color: #fff;
+}
       background: rgba(139, 92, 246, 0.2);
       color: var(--primary-light);
     }
@@ -566,10 +596,48 @@
     display: flex;
   }
 }
+
+/* ==== Splash Screen ==== */
+#splash-screen {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: splashFade 0.5s ease forwards 2.5s;
+}
+@keyframes splashFade {
+  to { opacity: 0; pointer-events: none; }
+}
+#splash-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.1em;
+  animation: slideUp 0.8s ease forwards;
+}
+#splash-subtitle {
+  font-size: 1rem;
+  color: #888;
+  margin-top: 0.5rem;
+  animation: slideUp 0.8s ease 0.3s forwards;
+  opacity: 0;
+}
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
 </style>
 </head>
 
 <body>
+<div id="splash-screen">
+  <div id="splash-title">MindMirror</div>
+  <div id="splash-subtitle">Your private AI journal — 100% on device</div>
+</div>
 
   <!-- SIDEBAR -->
   <nav class="sidebar">
@@ -577,10 +645,10 @@
       <div class="brand-dot"></div>
       <h1>MindMirror</h1>
     </div>
-    <button class="nav-link active" data-target="journal">📝 Journal</button>
-    <button class="nav-link" data-target="analytics">📊 Analytics</button>
-    <button class="nav-link" data-target="reflections">💡 Reflections</button>
-    <button class="nav-link" data-target="chatbot">🤖 Chatbot</button>
+    <button class="nav-link active" data-target="journal">Journal</button>
+    <button class="nav-link" data-target="analytics">Analytics</button>
+    <button class="nav-link" data-target="reflections">Reflections</button>
+    <button class="nav-link" data-target="chatbot">Chatbot</button>
     <div class="status-badge">
       <div class="status-dot" id="status-dot"></div>
       <span id="status-label">Checking AI...</span>
@@ -588,10 +656,10 @@
   </nav>
 
 <nav class="bottom-nav">
-  <button class="nav-link active" data-target="journal">📝</button>
-  <button class="nav-link" data-target="analytics">📊</button>
-  <button class="nav-link" data-target="reflections">💡</button>
-  <button class="nav-link" data-target="chatbot">🤖</button>
+  <button class="nav-link active" data-target="journal">Journal</button>
+  <button class="nav-link" data-target="analytics">Analytics</button>
+  <button class="nav-link" data-target="reflections">Reflections</button>
+  <button class="nav-link" data-target="chatbot">Chatbot</button>
 </nav>
 
   <!-- MAIN -->
@@ -599,43 +667,57 @@
 
     <!-- JOURNAL SECTION -->
     <section id="journal" class="section active">
-      <h1 class="page-title">Today's Reflection</h1>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="section-subtitle">Your private mental health insights</p>
 
       <!-- KPI Cards -->
       <div class="kpi-row">
-        <div class="kpi-card">
-          <div class="kpi-icon">😊</div>
-          <div class="kpi-label">Avg Mood</div>
-          <div class="kpi-value" id="kpi-mood">--</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon">⚡</div>
-          <div class="kpi-label">Avg Stress</div>
-          <div class="kpi-value" id="kpi-stress">--</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon">🌙</div>
-          <div class="kpi-label">Avg Sleep</div>
-          <div class="kpi-value" id="kpi-sleep">--</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon">📓</div>
-          <div class="kpi-label">Total Logs</div>
-          <div class="kpi-value" id="kpi-count">0</div>
-        </div>
+  <div class="kpi-card" style="border-top: 2px solid #4f9cf9;">
+    <div class="kpi-label">Avg Mood</div>
+    <div class="kpi-value" id="kpi-mood">--</div>
+    <div class="kpi-desc">Last 7 days</div>
+  </div>
+  <div class="kpi-card" style="border-top: 2px solid #f97316;">
+    <div class="kpi-label">Avg Stress</div>
+    <div class="kpi-value" id="kpi-stress">--</div>
+    <div class="kpi-desc">Last 7 days</div>
+  </div>
+  <div class="kpi-card" style="border-top: 2px solid #22c55e;">
+    <div class="kpi-label">Avg Sleep</div>
+    <div class="kpi-value" id="kpi-sleep">--</div>
+    <div class="kpi-desc">Last 7 days</div>
+  </div>
+  <div class="kpi-card" style="border-top: 2px solid #a855f7;">
+    <div class="kpi-label">Total Logs</div>
+    <div class="kpi-value" id="kpi-count">0</div>
+    <div class="kpi-desc">Last 7 days</div>
+  </div>
+</div>
+
       </div>
 
       <!-- Journal Entry -->
-      <div class="card">
+      <div class="card" style="margin-top:2rem;">
         <h2>New Entry</h2>
         <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:12px;">Write freely. Your entries are
           processed locally and never leave this device.</p>
         <textarea id="journal-content"
-          placeholder="How are you feeling today? Mention your mood, sleep, stress, or anything on your mind..."></textarea>
+          placeholder="Write your thoughts..."></textarea>
         <div class="char-counter"><span id="char-count">0</span> characters</div>
+
         <button class="btn-primary" id="journal-save">
           ✨ Analyze & Save Entry
         </button>
+        <div id="toast" class="toast" style="position:fixed;bottom:20px;right:20px;background:#f44336;color:white;padding:10px;border-radius:4px;display:none;z-index:1000;"></div>
+        <script>
+          // Simple toast notification
+          function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 4000);
+          }
+        </script>
       </div>
 
       <!-- Timeline -->
@@ -702,6 +784,7 @@
     let moodChartInst = null;
     let stressChartInst = null;
 
+
     // ── API
     const api = {
       getEntries: () => fetch('/api/entries').then(r => r.json()),
@@ -709,6 +792,8 @@
       getInsights: () => fetch('/api/insights', { signal: AbortSignal.timeout(300000) }).then(r => r.json()),
       postChat: (q) => fetch('/api/insights/query', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: q }), signal: AbortSignal.timeout(300000) }).then(r => r.json()),
       getStatus: () => fetch('/api/status').then(r => r.json()),
+      getProfile: () => fetch('/api/profile').then(r => r.json()),
+      postProfile: (name) => fetch('/api/profile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) }).then(r => r.json()),
     };
 
     // ── Navigation
@@ -721,6 +806,7 @@
         document.getElementById(target).classList.add('active');
         if (target === 'analytics') loadAnalytics();
         if (target === 'reflections') loadReflection();
+        
       });
     });
 
@@ -900,13 +986,39 @@ function parseDate(ts) {
     }
 
     // ── Init
+    // Use recursive timeout to periodically check status without accumulating listeners
+    const scheduleStatusCheck = () => {
+      setTimeout(async () => {
+        await checkStatus();
+        scheduleStatusCheck();
+      }, 15000);
+    };
+
+    // Helper to activate a given section and its nav link
+    function activateSection(sectionId) {
+      // Deactivate all nav links and sections
+      document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      // Activate target nav link and section
+      const navBtn = document.querySelector(`.nav-link[data-target="${sectionId}"]`);
+      if (navBtn) navBtn.classList.add('active');
+      const sec = document.getElementById(sectionId);
+      if (sec) sec.classList.add('active');
+    }
+
     async function init() {
       await checkStatus();
       await loadEntries();
-      setInterval(checkStatus, 15000);
+      // Show journal section by default
+      activateSection('journal');
+      scheduleStatusCheck();
     }
 
     init();
+setTimeout(() => {
+  const splash = document.getElementById('splash-screen');
+  if (splash) splash.remove();
+}, 3000);
   </script>
 </body>
 

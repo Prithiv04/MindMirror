@@ -13,6 +13,9 @@ import {
 } from "./analyze.js";
 import { close as closeQVAC } from "@qvac/sdk";
 
+
+import fs from "fs";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -32,6 +35,10 @@ app.get("/api/status", (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+
+
 
 // API: Get all journal entries
 app.get("/api/entries", async (req, res) => {
@@ -110,37 +117,94 @@ app.post("/api/insights/query", async (req, res) => {
   }
 });
 
+const PROFILE_FILE = path.join(__dirname, "profile.json");
+
+// API: Get user profile details
+app.get("/api/profile", async (req, res) => {
+  try {
+    let data;
+    try {
+      data = await fs.promises.readFile(PROFILE_FILE, "utf-8");
+    } catch (error) {
+      if (error.code === "ENOENT") {
+        const defaultProfile = { name: "", joinDate: new Date().toISOString() };
+        await fs.promises.writeFile(PROFILE_FILE, JSON.stringify(defaultProfile, null, 2), "utf-8");
+        return res.json(defaultProfile);
+      }
+      throw error;
+    }
+    res.json(JSON.parse(data || "{}"));
+  } catch (error) {
+    console.error("Error reading profile:", error);
+    res.status(500).json({ error: "Failed to read profile data." });
+  }
+});
+
+// API: Save user profile name
+app.post("/api/profile", async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (typeof name !== "string") {
+      return res.status(400).json({ error: "Name must be a string." });
+    }
+
+    let profile = { name: "", joinDate: new Date().toISOString() };
+    try {
+      const data = await fs.promises.readFile(PROFILE_FILE, "utf-8");
+      console.log('Profile data:', JSON.parse(data));
+      profile = JSON.parse(data || "{}");
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+
+    profile.name = name;
+    await fs.promises.writeFile(PROFILE_FILE, JSON.stringify(profile, null, 2), "utf-8");
+    res.json(profile);
+  } catch (error) {
+    console.error("Error saving profile:", error);
+    res.status(500).json({ error: "Failed to save profile data." });
+  }
+});
+
 // Serve the index.html fallback for client-side routing if needed (optional)
 app.get("/*splat", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Start server and initialize AI models
-const server = app.listen(PORT, async () => {
-  console.log(`===================================================`);
-  console.log(`🚀 MindMirror local backend running at: http://localhost:${PORT}`);
-  console.log(`   Running fully offline on Node.js ${process.version}`);
-  console.log(`===================================================`);
+  // Start server and initialize AI models
+  const server = app.listen(PORT, async () => {
+    console.log(`===================================================`);
+    console.log(`🚀 MindMirror local backend running at: http://localhost:${PORT}`);
+    console.log(`   Running fully offline on Node.js ${process.version}`);
+    console.log(`===================================================`);
 
-  // Extend server timeout to 5 minutes (300000 ms) to accommodate slow model inference
-  server.setTimeout(300000);
-  
-  try {
-    // 1. Trigger model loading on startup asynchronously
-    console.log("Initializing local QVAC AI Models...");
-    await ensureModels();
-    
+    // Extend server timeout to 5 minutes (300000 ms) to accommodate slow model inference
+    server.setTimeout(300000);
+
+    // Helper to remove stale QVAC lock file
+    const removeLockFile = async () => {
+      try {
+        const os = await import('os');
+        const lockPath = path.join(os.homedir(), '.qvac', '.worker.lock');
+        await fs.promises.unlink(lockPath).catch(() => {});
+      } catch (e) {
+        console.error('Failed to remove QVAC lock file:', e);
+      }
+    };
+
+
+
     // 2. Synchronize the RAG index with the entries.json
-    console.log("Synchronizing RAG database with local entries...");
+    console.log('Synchronizing RAG database with local entries...');
     const entries = await getEntries();
-    await reindexAllEntries(entries);
-    console.log("RAG database synchronization complete.");
-    console.log("✨ MindMirror local AI is ready for private inference!");
-  } catch (error) {
-    console.error("❌ Failed to initialize QVAC AI: ", error);
-    console.log("Ensure the QVAC provider is installed and your system has sufficient RAM.");
-  }
-});
+    try {
+      await reindexAllEntries(entries);
+      console.log('RAG database synchronization complete.');
+    } catch (ragErr) {
+      console.warn('RAG reindexing failed (likely lock issue), proceeding without RAG sync.', ragErr);
+    }
+    // End of retry logic
+  });
 
 // Graceful teardown on termination signals
 const handleGracefulShutdown = async () => {

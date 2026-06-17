@@ -49,70 +49,6 @@
     }
   },
   {
-    "id": "1780731749388",
-    "timestamp": "2026-06-06T07:42:29.389Z",
-    "content": "im gonna propose my crush",
-    "analysis": {
-      "mood": "Anxious",
-      "moodScore": 6,
-      "stressLevel": 8,
-      "sleepQuality": null,
-      "keywords": [
-        "proposal",
-        "crush"
-      ],
-      "summary": "The user is feeling anxious about proposing to their crush, and is unsure if this is the right time."
-    }
-  },
-  {
-    "id": "1780731819143",
-    "timestamp": "2026-06-06T07:43:39.145Z",
-    "content": "im gonna propose to my crush",
-    "analysis": {
-      "mood": "Calm",
-      "moodScore": 0,
-      "stressLevel": 0,
-      "sleepQuality": 1,
-      "keywords": [
-        "crush",
-        "proposal"
-      ],
-      "summary": "Thinking about asking my crush to be my girlfriend"
-    }
-  },
-  {
-    "id": "1780834519030",
-    "timestamp": "2026-06-07T12:15:19.031Z",
-    "content": "im gonna propose my crush",
-    "analysis": {
-      "mood": "Anxious",
-      "moodScore": 6,
-      "stressLevel": 3,
-      "sleepQuality": 5,
-      "keywords": [
-        "crush",
-        "proposal"
-      ],
-      "summary": "Anxious anticipation for a potential crush's proposal."
-    }
-  },
-  {
-    "id": "1780834685972",
-    "timestamp": "2026-06-07T12:18:05.972Z",
-    "content": "im gonna propose my crush",
-    "analysis": {
-      "mood": "Calm",
-      "moodScore": 5,
-      "stressLevel": 2,
-      "sleepQuality": null,
-      "keywords": [
-        " Crush",
-        " proposal"
-      ],
-      "summary": "I'm feeling hopeful and optimistic about the potential outcome."
-    }
-  },
-  {
     "id": "1780834960396",
     "timestamp": "2026-06-07T12:22:40.398Z",
     "content": "i am worried about toomorrow exam",
@@ -126,25 +62,6 @@
         "worried"
       ],
       "summary": "I'm feeling anxious about my upcoming exam tomorrow, I'm worried about what the questions will be and whether I'll be able to answer them correctly."
-    }
-  },
-  {
-    "id": "1780838254300",
-    "timestamp": "2026-06-07T13:17:34.301Z",
-    "content": "im gonna propose my crush",
-    "analysis": {
-      "moodScore": 2,
-      "mood": "string",
-      "stressLevel": 0,
-      "sleepQuality": null,
-      "keywords": [
-        "im",
-        "gonna",
-        "propose",
-        "my",
-        "crush"
-      ],
-      "summary": "I'm planning to make a big move and ask my crush out"
     }
   },
   {
@@ -192,6 +109,57 @@
         "worked out",
         "hard"
       ]
+    }
+  },
+  {
+    "id": "1781539291920",
+    "timestamp": "2026-06-15T16:01:31.922Z",
+    "content": "im feeling stressed today",
+    "analysis": {
+      "mood": "stressed",
+      "moodScore": 10,
+      "stressLevel": 8,
+      "sleepQuality": null,
+      "keywords": [
+        "feeling",
+        "stressed",
+        "tired"
+      ],
+      "summary": "just a really tough day"
+    }
+  },
+  {
+    "id": "1781600129792",
+    "timestamp": "2026-06-16T08:55:29.793Z",
+    "content": "Today was a productive day. Finished my project work and felt really accomplished. Had a good sleep last night and woke up feeling refreshed. Stress levels are low and I'm feeling positive about the week ahead",
+    "analysis": {
+      "mood": "positive",
+      "moodScore": 8,
+      "stressLevel": 0,
+      "sleepQuality": 9,
+      "keywords": [
+        "productive",
+        "accomplished",
+        "refreshed"
+      ],
+      "summary": "Today was a productive day with a successful project completion and a good night's sleep, setting me up for a positive week ahead."
+    }
+  },
+  {
+    "id": "1781704030212",
+    "timestamp": "2026-06-17T13:47:10.213Z",
+    "content": "I'm feeling little bit stress today",
+    "analysis": {
+      "mood": "stress",
+      "moodScore": 1,
+      "stressLevel": 5,
+      "sleepQuality": 8,
+      "keywords": [
+        "stress",
+        "feel",
+        "little bit"
+      ],
+      "summary": "This entry is a brief reflection on the current mood."
     }
   }
 ]
